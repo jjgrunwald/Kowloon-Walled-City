@@ -20,7 +20,7 @@
   </style>
 </head>
 <body>
-  <div id="info">Simple Geometry Project</div>
+  <div id="info">Kowloon Walled City</div>
   <button id="rotateButton">Auto Rotate</button>
   <button id="increaseButton">MORE</button>
   <button id="decreaseButton">LESS</button>
@@ -38,7 +38,7 @@
     import * as THREE from './build/three.module.js';
     import { OrbitControls } from './data/jsm/controls/OrbitControls.js';
 
-    class SimpleGeometry {
+    class KowloonWalledCity {
       constructor() {
         this.totalShapes = 2000;
         this.shapes = [];
@@ -102,70 +102,14 @@
         plane.receiveShadow = false;
         plane.rotation.x = -Math.PI / 2;
         this._scene.add(plane);
-
-        this.geometries = [
-          new THREE.BoxGeometry(2, 2, 2),
-          new THREE.SphereGeometry(2, 32, 32),
-          new THREE.IcosahedronGeometry(2),
-          new THREE.OctahedronGeometry(2),
-          new THREE.TetrahedronGeometry(2)
-        ];
-
-        this._AddShapes(this.totalShapes);
-
         this.cameraRadius = 100;
         this.cameraAngle = 0;
         this.isRotating = false;
 
-        const rotateButton = document.getElementById('rotateButton');
-        rotateButton.addEventListener('click', () => {
-          this.isRotating = !this.isRotating;
-          rotateButton.textContent = this.isRotating ? 'Stop Rotation' : 'Start Rotation';
-        });
-
-        const increaseButton = document.getElementById('increaseButton');
-        increaseButton.addEventListener('click', () => {
-          this.totalShapes += 1000;
-          this._AddShapes(1000);
-        });
-
-        const decreaseButton = document.getElementById('decreaseButton');
-        decreaseButton.addEventListener('click', () => {
-          if (this.totalShapes > 1000) {
-            this.totalShapes -= 1000;
-            this._RemoveShapes(1000);
-          }
-        });
-
         this._RAF();
       }
 
-      _AddShapes(count) {
-        for (let i = 0; i < count; i++) {
-          const x = (Math.random() - 0.5) * 200;
-          const y = Math.random() * 100 + 2.0;
-          const z = (Math.random() - 0.5) * 200;
-          const randomColor = new THREE.Color(Math.random(), Math.random(), Math.random());
-          const geometry = this.geometries[Math.floor(Math.random() * this.geometries.length)];
-          const material = new THREE.MeshStandardMaterial({ color: randomColor });
-          const shape = new THREE.Mesh(geometry, material);
-          shape.position.set(x, y, z);
-          shape.castShadow = true;
-          shape.receiveShadow = false;
-          this._scene.add(shape);
-          this.shapes.push(shape);
-        }
-      }
-
-      _RemoveShapes(count) {
-        for (let i = 0; i < count; i++) {
-          const shape = this.shapes.pop();
-          if (shape) {
-            this._scene.remove(shape);
-          }
-        }
-      }
-
+     
       _OnWindowResize() {
         this._camera.aspect = window.innerWidth / window.innerHeight;
         this._camera.updateProjectionMatrix();
@@ -192,7 +136,7 @@
     let _APP = null;
 
     window.addEventListener('DOMContentLoaded', () => {
-      _APP = new SimpleGeometry();
+      _APP = new KowloonWalledCity();
     });
   </script>
 </body>

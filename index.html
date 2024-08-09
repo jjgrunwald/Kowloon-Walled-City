@@ -37,6 +37,7 @@
   <script type="module">
     import * as THREE from './build/three.module.js';
     import { OrbitControls } from './data/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from './data/jsm/loaders/GLTFLoader.js';  // Import GLTFLoader
 
     class KowloonWalledCity {
       constructor() {
@@ -102,6 +103,18 @@
         plane.receiveShadow = false;
         plane.rotation.x = -Math.PI / 2;
         this._scene.add(plane);
+
+        // Load the 3D model
+        const loader = new GLTFLoader();
+        loader.load('./data/models/apartment_unit.glb', (gltf) => {
+          const model = gltf.scene;
+          model.position.set(0, 0, 0);  // Set the position of the model
+          model.scale.set(1.5, 1.5, 1.5);  // Scale down the model to make it appear smaller
+          this._scene.add(model);
+        }, undefined, (error) => {
+          console.error('An error occurred while loading the model:', error);
+        });
+
         this.cameraRadius = 100;
         this.cameraAngle = 0;
         this.isRotating = false;
@@ -109,7 +122,6 @@
         this._RAF();
       }
 
-     
       _OnWindowResize() {
         this._camera.aspect = window.innerWidth / window.innerHeight;
         this._camera.updateProjectionMatrix();

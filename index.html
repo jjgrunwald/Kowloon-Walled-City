@@ -1,43 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Geometry Project</title>
+  <title>Walled City - by JJ Grunwald</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <link type="text/css" rel="stylesheet" href="data/main.css">
   <style>
     body { margin: 0; }
-    #rotateButton, #increaseButton, #decreaseButton {
-      position: absolute;
-      bottom: 10px;
-      padding: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #rotateButton { left: 10px; }
-    #increaseButton { left: 140px; }
-    #decreaseButton { left: 210px; }
-  </style>
-</head>
-<body>
-  <div id="info">Kowloon Walled City</div>
-  <button id="rotateButton">Auto Rotate</button>
-  <button id="increaseButton">MORE</button>
-  <button id="decreaseButton">LESS</button>
+      </style>
+    </head>
+    <body>
+      <div id="info">Walled City</div>
+      <div id="details">Coding and Models by J.J. Grunwald</div>
+      <div id="instructions">PRESS REFRESH TO REGENERATE CITY</div>
 
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "./build/three.module.js",
-        "three/addons/": "./data/jsm/"
-      }
-    }
-  </script>
+      <script type="importmap">
+        {
+          "imports": {
+            "three": "./build/three.module.js",
+            "three/addons/": "./data/jsm/"
+          }
+        }
+      </script>
 
-  <script type="module">
-    import * as THREE from './build/three.module.js';
-    import { OrbitControls } from './data/jsm/controls/OrbitControls.js';
-    import { GLTFLoader } from './data/jsm/loaders/GLTFLoader.js';
+    <script type="module">
+      import * as THREE from './build/three.module.js';
+      import { OrbitControls } from './data/jsm/controls/OrbitControls.js';
+      import { GLTFLoader } from './data/jsm/loaders/GLTFLoader.js';
 
     class KowloonWalledCity {
       constructor() {
@@ -68,7 +57,7 @@
         this._scene = new THREE.Scene();
 
         let light = new THREE.DirectionalLight(0xFFFFFF, 4.0);
-        light.position.set(20, 100, 10);
+        light.position.set(20, 80, 10);
         light.target.position.set(0, 0, 0);
         light.castShadow = true;
         light.shadow.bias = -0.001;
@@ -91,30 +80,16 @@
         this._controls = new OrbitControls(this._camera, this._threejs.domElement);
         this._controls.target.set(90, 180, 0);
         this._controls.update();
-
-        const plane = new THREE.Mesh(
-          new THREE.PlaneGeometry(400, 400, 10, 10),
-          new THREE.MeshStandardMaterial({
-            color: 0x1B78F2,
-          }));
-        plane.castShadow = false;
-        plane.receiveShadow = false;
-        plane.rotation.x = -Math.PI / 2;
-        this._scene.add(plane);
         const loader = new GLTFLoader();
         loader.load('./data/models/apartment_unit.glb', (gltf) => {
           const model = gltf.scene;
           model.scale.set(1.5, 1.5, 1.5);
 
-          const brightPinkMaterial = new THREE.MeshStandardMaterial({ color: 0xff00ff });
-
-          model.traverse((child) => {
-            if (child.isMesh) {
-              if (child.name === 'Window_Frame_Left' || child.name === 'Window_Frame_Right') {
-                child.material = brightPinkMaterial;
-              }
-            }
-          });
+          const materials = [
+            new THREE.MeshStandardMaterial({ color: 0xADD8E6 }), // Light Blue
+            new THREE.MeshStandardMaterial({ color: 0xff00ff }), // Pink
+            new THREE.MeshStandardMaterial({ color: 0x77dd77 })  // Pastel Green
+          ];
 
           const rows = 30;
           const cols = 22;
@@ -125,6 +100,18 @@
           for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
               const clone = model.clone();
+
+              const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
+
+              // Traverse the clone to apply the random material to both window frames
+              clone.traverse((child) => {
+                if (child.isMesh) {
+                  if (child.name === 'Window_Frame_Left' || child.name === 'Window_Frame_Right') {
+                    child.material = randomMaterial;
+                  }
+                }
+              });
+
               clone.position.set(j * xSpacing + xOffset, i * ySpacing, 0);
               this._scene.add(clone);
             }

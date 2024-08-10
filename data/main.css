@@ -26,7 +26,45 @@ button {
 	-ms-user-select: none;
 	user-select: none;
 	pointer-events: none;
+	background-color: #000;
+	opacity: .7;
 	z-index: 1;
+}
+
+#details {
+	position: absolute;
+	top: 44px;
+	width: 100%;
+	padding: 10px;
+	font-size: small;
+	box-sizing: border-box;
+	text-align: center;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	background-color: #000;
+	opacity: .7;
+	z-index: 1;
+}
+
+#instructions {
+	position: absolute;
+	bottom: 30px;
+	width: 100%;
+	padding: 10px;
+	font-size: xx-large;
+	box-sizing: border-box;
+	text-align: center;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	z-index: 1;
+	opacity: .7;
+	background-color: black;
 }
 
 a, button, input, select {

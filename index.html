@@ -132,6 +132,7 @@
         const patioModels = [
           './data/models/patio_001.glb',
           './data/models/patio_002.glb',
+          './data/models/patio_003.glb',
           null  // No patio option
         ];
 
@@ -141,6 +142,19 @@
           loader.load(selectedPatio, (gltf) => {
             const patio = gltf.scene;
             patio.scale.set(1, 1, 1);
+
+            const materials = [
+        new THREE.MeshStandardMaterial({ color: 0xADD8E6 }), // Light Blue
+        new THREE.MeshStandardMaterial({ color: 0xedaeed }), // Pastel Pink
+        new THREE.MeshStandardMaterial({ color: 0xb3efb3 })  // Pastel Green
+      ];
+      const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
+
+      patio.traverse((child) => {
+        if (child.isMesh) {
+          child.material = randomMaterial;
+        }
+      });
 
             // Positions the patio relative to the apartment unit
             patio.position.set(0, 0, 0); 

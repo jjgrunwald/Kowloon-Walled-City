@@ -37,12 +37,10 @@
   <script type="module">
     import * as THREE from './build/three.module.js';
     import { OrbitControls } from './data/jsm/controls/OrbitControls.js';
-    import { GLTFLoader } from './data/jsm/loaders/GLTFLoader.js';  // Import GLTFLoader
+    import { GLTFLoader } from './data/jsm/loaders/GLTFLoader.js';
 
     class KowloonWalledCity {
       constructor() {
-        this.totalShapes = 2000;
-        this.shapes = [];
         this._Initialize();
       }
 
@@ -65,7 +63,7 @@
         const near = 1.0;
         const far = 1000.0;
         this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        this._camera.position.set(75, 20, 80);
+        this._camera.position.set(154.17, 178.53, 134.24);
 
         this._scene = new THREE.Scene();
 
@@ -91,7 +89,7 @@
         this._scene.background = backColor;
 
         this._controls = new OrbitControls(this._camera, this._threejs.domElement);
-        this._controls.target.set(0, 20, 0);
+        this._controls.target.set(90, 180, 0);
         this._controls.update();
 
         const plane = new THREE.Mesh(
@@ -103,14 +101,34 @@
         plane.receiveShadow = false;
         plane.rotation.x = -Math.PI / 2;
         this._scene.add(plane);
-
-        // Load the 3D model
         const loader = new GLTFLoader();
         loader.load('./data/models/apartment_unit.glb', (gltf) => {
           const model = gltf.scene;
-          model.position.set(0, 0, 0);  // Set the position of the model
-          model.scale.set(1.5, 1.5, 1.5);  // Scale down the model to make it appear smaller
-          this._scene.add(model);
+          model.scale.set(1.5, 1.5, 1.5);
+
+          const brightPinkMaterial = new THREE.MeshStandardMaterial({ color: 0xff00ff });
+
+          model.traverse((child) => {
+            if (child.isMesh) {
+              if (child.name === 'Window_Frame_Left' || child.name === 'Window_Frame_Right') {
+                child.material = brightPinkMaterial;
+              }
+            }
+          });
+
+          const rows = 30;
+          const cols = 22;
+          const xSpacing = 27;
+          const ySpacing = 13.5;
+          const xOffset = -320;
+
+          for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+              const clone = model.clone();
+              clone.position.set(j * xSpacing + xOffset, i * ySpacing, 0);
+              this._scene.add(clone);
+            }
+          }
         }, undefined, (error) => {
           console.error('An error occurred while loading the model:', error);
         });

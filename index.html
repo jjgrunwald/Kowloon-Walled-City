@@ -5,14 +5,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <link type="text/css" rel="stylesheet" href="data/main.css">
-  <style>
-    body { margin: 0; }
-  </style>
+
 </head>
 <body>
   <div id="info">Walled City</div>
-  <div id="details">Each unit is dynamically generated to create a visually diverse cityscape. Users can explore the scene interactively with camera controls to view the densely packed apartments from various angles. Coding and Models by J.J. Grunwald</div>
-  <div id="instructions">PRESS REFRESH TO REGENERATE CITY</div>
+  <div id="details">Each unit is dynamically generated to create a visually diverse cityscape. Users can explore the scene interactively to explore from various angles. Coding and Models by J.J. Grunwald</div>
+  <div id="regenerateButtonContainer">
+  <button id="regenerateButton" onclick="location.reload();">REGENERATE CITY</button>
+  </div>
 
   <script type="importmap">
     {
@@ -73,7 +73,6 @@
         this._threejs.toneMappingExposure = 1;  
         this._threejs.gammaFactor = 12;
         
-
         light = new THREE.AmbientLight(0x101010);
         this._scene.add(light);
 
@@ -148,17 +147,17 @@
             patio.scale.set(1, 1, 1);
 
             const materials = [
-        new THREE.MeshStandardMaterial({ color: 0xADD8E6 }), // Light Blue
-        new THREE.MeshStandardMaterial({ color: 0xedaeed }), // Pastel Pink
-        new THREE.MeshStandardMaterial({ color: 0xb3efb3 })  // Pastel Green
-      ];
-      const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
+              new THREE.MeshStandardMaterial({ color: 0xADD8E6 }), // Light Blue
+              new THREE.MeshStandardMaterial({ color: 0xedaeed }), // Pastel Pink
+              new THREE.MeshStandardMaterial({ color: 0xb3efb3 })  // Pastel Green
+            ];
+            const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
 
-      patio.traverse((child) => {
-        if (child.isMesh) {
-          child.material = randomMaterial;
-        }
-      });
+            patio.traverse((child) => {
+              if (child.isMesh) {
+                child.material = randomMaterial;
+              }
+            });
 
             // Positions the patio relative to the apartment unit
             patio.position.set(0, 0, 0); 

@@ -49,23 +49,29 @@ button {
 	z-index: 1;
 }
 
-#instructions {
-	position: absolute;
-	bottom: 30px;
+#regenerateButtonContainer {
+	display: flex;
+	justify-content: center;
 	width: 100%;
-	padding: 10px;
-	font-size: xx-large;
-	box-sizing: border-box;
-	text-align: center;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
+  }
+
+#regenerateButton  {
+	position: absolute;
+	
+	bottom: 30px;
 	z-index: 1;
-	opacity: .7;
-	background-color: black;
+	padding: 10px 20px;
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	cursor: pointer;
+	font-size: 16px;
 }
+
+#regenerateButton:hover {
+	background-color: #45a049;
+  }
+  
 
 a, button, input, select {
 	pointer-events: auto;

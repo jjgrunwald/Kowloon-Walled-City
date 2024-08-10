@@ -7,26 +7,26 @@
   <link type="text/css" rel="stylesheet" href="data/main.css">
   <style>
     body { margin: 0; }
-      </style>
-    </head>
-    <body>
-      <div id="info">Walled City</div>
-      <div id="details">Coding and Models by J.J. Grunwald</div>
-      <div id="instructions">PRESS REFRESH TO REGENERATE CITY</div>
+  </style>
+</head>
+<body>
+  <div id="info">Walled City</div>
+  <div id="details">Coding and Models by J.J. Grunwald</div>
+  <div id="instructions">PRESS REFRESH TO REGENERATE CITY</div>
 
-      <script type="importmap">
-        {
-          "imports": {
-            "three": "./build/three.module.js",
-            "three/addons/": "./data/jsm/"
-          }
-        }
-      </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./build/three.module.js",
+        "three/addons/": "./data/jsm/"
+      }
+    }
+  </script>
 
-    <script type="module">
-      import * as THREE from './build/three.module.js';
-      import { OrbitControls } from './data/jsm/controls/OrbitControls.js';
-      import { GLTFLoader } from './data/jsm/loaders/GLTFLoader.js';
+  <script type="module">
+    import * as THREE from './build/three.module.js';
+    import { OrbitControls } from './data/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from './data/jsm/loaders/GLTFLoader.js';
 
     class KowloonWalledCity {
       constructor() {
@@ -57,7 +57,7 @@
         this._scene = new THREE.Scene();
 
         let light = new THREE.DirectionalLight(0xFFFFFF, 4.0);
-        light.position.set(20, 80, 10);
+        light.position.set(60, 80, 10);
         light.target.position.set(0, 0, 0);
         light.castShadow = true;
         light.shadow.bias = -0.001;
@@ -80,6 +80,7 @@
         this._controls = new OrbitControls(this._camera, this._threejs.domElement);
         this._controls.target.set(90, 180, 0);
         this._controls.update();
+
         const loader = new GLTFLoader();
         loader.load('./data/models/apartment_unit.glb', (gltf) => {
           const model = gltf.scene;
@@ -87,12 +88,12 @@
 
           const materials = [
             new THREE.MeshStandardMaterial({ color: 0xADD8E6 }), // Light Blue
-            new THREE.MeshStandardMaterial({ color: 0xff00ff }), // Pink
-            new THREE.MeshStandardMaterial({ color: 0x77dd77 })  // Pastel Green
+            new THREE.MeshStandardMaterial({ color: 0xedaeed }), // Pastel Pink
+            new THREE.MeshStandardMaterial({ color: 0xb3efb3 })  // Pastel Green
           ];
 
-          const rows = 30;
-          const cols = 22;
+          const rows = 28;
+          const cols = 24;
           const xSpacing = 27;
           const ySpacing = 13.5;
           const xOffset = -320;
@@ -102,8 +103,6 @@
               const clone = model.clone();
 
               const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
-
-              // Traverse the clone to apply the random material to both window frames
               clone.traverse((child) => {
                 if (child.isMesh) {
                   if (child.name === 'Window_Frame_Left' || child.name === 'Window_Frame_Right') {
@@ -114,10 +113,12 @@
 
               clone.position.set(j * xSpacing + xOffset, i * ySpacing, 0);
               this._scene.add(clone);
+
+              this._AddRandomPatio(clone, loader);
             }
           }
         }, undefined, (error) => {
-          console.error('An error occurred while loading the model:', error);
+          console.error('An error occurred while loading the apartment models:', error);
         });
 
         this.cameraRadius = 100;
@@ -125,6 +126,29 @@
         this.isRotating = false;
 
         this._RAF();
+      }
+
+      _AddRandomPatio(apartment, loader) {
+        const patioModels = [
+          './data/models/patio_001.glb',
+          './data/models/patio_002.glb',
+          null  // No patio option
+        ];
+
+        const selectedPatio = patioModels[Math.floor(Math.random() * patioModels.length)];
+
+        if (selectedPatio) {
+          loader.load(selectedPatio, (gltf) => {
+            const patio = gltf.scene;
+            patio.scale.set(1, 1, 1);
+
+            // Positions the patio relative to the apartment unit
+            patio.position.set(0, 0, 0); 
+            apartment.add(patio);
+          }, undefined, (error) => {
+            console.error('An error occurred while loading the patio model:', error);
+          });
+        }
       }
 
       _OnWindowResize() {

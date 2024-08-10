@@ -57,24 +57,27 @@
         this._scene = new THREE.Scene();
 
         let light = new THREE.DirectionalLight(0xFFFFFF, 4.0);
-        light.position.set(60, 80, 10);
+        light.position.set(90, 80, 15);
         light.target.position.set(0, 0, 0);
         light.castShadow = true;
-        light.shadow.bias = -0.001;
         light.shadow.mapSize.width = 2048;
         light.shadow.mapSize.height = 2048;
         light.shadow.camera.near = 0.1;
         light.shadow.camera.far = 500.0;
         light.shadow.camera.left = 100;
         light.shadow.camera.right = -100;
-        light.shadow.camera.top = 100;
-        light.shadow.camera.bottom = -100;
+        light.intensity = 3.9;
         this._scene.add(light);
+
+        this._threejs.toneMapping = THREE.ReinhardToneMapping;
+        this._threejs.toneMappingExposure = 1;  
+        this._threejs.gammaFactor = 12;
+        
 
         light = new THREE.AmbientLight(0x101010);
         this._scene.add(light);
 
-        const backColor = new THREE.Color(0xA7EBF2);
+        const backColor = new THREE.Color(0xAAAAAA);
         this._scene.background = backColor;
 
         this._controls = new OrbitControls(this._camera, this._threejs.domElement);

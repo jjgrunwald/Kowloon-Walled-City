@@ -114,7 +114,8 @@
               this._scene.add(clone);
 
               this._AddRandomPatio(clone, loader);
-              this._AddRandomLaundry(clone, loader);  // Add random laundry model
+              this._AddRandomLaundry(clone, loader);
+              this._AddRandomSign(clone, loader);
             }
           }
         }, undefined, (error) => {
@@ -162,51 +163,90 @@
             patio.position.set(0, 0, 0); 
             apartment.add(patio);
           }, undefined, (error) => {
-            console.error('An error occurred while loading the patio model:', error);
+            console.error('An error occurred while loading the patio models:', error);
           });
         }
       }
 
       _AddRandomLaundry(apartment, loader) {
-  // 50% chance of adding laundry
-  const shouldAddLaundry = Math.random() < 0.5;
 
-  if (!shouldAddLaundry) {
-    return; // Do not add laundry
-  }
+        const shouldAddLaundry = Math.random() < 0.5;
 
-  // Randomly choose between different laundry models
-  const laundryModels = [
-    './data/models/laundry_001.glb',
-    './data/models/laundry_002.glb'  // Assuming you have a second model
-  ];
-  const selectedModel = laundryModels[Math.floor(Math.random() * laundryModels.length)];
+        if (!shouldAddLaundry) {
+          return; // Do not add laundry
+        }
 
-  loader.load(selectedModel, (gltf) => {
-    const laundry = gltf.scene;
-    laundry.scale.set(1, 1, 1);
+        const laundryModels = [
+          './data/models/laundry_001.glb',
+          './data/models/laundry_002.glb'  //Don't forget to add second model later.
+        ];
+        const selectedModel = laundryModels[Math.floor(Math.random() * laundryModels.length)];
 
-    const offsetX = 0; 
-    const offsetY = -1;
-    const offsetZ = 1.2; // Adjust as needed
+        loader.load(selectedModel, (gltf) => {
+          const laundry = gltf.scene;
+          laundry.scale.set(1, 1, 1);
 
-    laundry.traverse((child) => {
-      if (child.isMesh && child.name.startsWith('hanging_')) {
-        const randomColor = Math.random() * 0xffffff;
-        child.material = new THREE.MeshStandardMaterial({ 
-          color: randomColor, 
-          side: THREE.DoubleSide  // Ensure visibility of all faces
+          const offsetX = 0; 
+          const offsetY = -1;
+          const offsetZ = 1.2;
+
+          laundry.traverse((child) => {
+            if (child.isMesh && child.name.startsWith('hanging_')) {
+              const randomColor = Math.random() * 0xffffff;
+              child.material = new THREE.MeshStandardMaterial({ 
+                color: randomColor, 
+                side: THREE.DoubleSide  // Ensure visibility of all faces
+              });
+            }
+          });
+
+          laundry.position.set(offsetX, offsetY, offsetZ);
+
+          apartment.add(laundry);
+        }, undefined, (error) => {
+          console.error('An error occurred while loading the laundry model:', error);
         });
       }
-    });
 
-    laundry.position.set(offsetX, offsetY, offsetZ);
+      _AddRandomSign(apartment, loader) {
 
-    apartment.add(laundry);
-  }, undefined, (error) => {
-    console.error('An error occurred while loading the laundry model:', error);
-  });
-}
+        const shouldAddSign = Math.random() < 0.03;
+
+        if (!shouldAddSign) {
+          return; // Do not add laundry
+        }
+
+        const signModels = [
+          './data/models/sign_001.glb',
+        ];
+        const selectedModel = signModels[Math.floor(Math.random() * signModels.length)];
+
+        loader.load(selectedModel, (gltf) => {
+          const laundry = gltf.scene;
+          laundry.scale.set(1, 1, 1);
+
+          const offsetX = 0; 
+          const offsetY = -1;
+          const offsetZ = 0;
+
+          laundry.traverse((child) => {
+            if (child.isMesh && child.name.startsWith('hanging_')) {
+              const randomColor = Math.random() * 0xffffff;
+              child.material = new THREE.MeshStandardMaterial({ 
+                color: randomColor, 
+                side: THREE.DoubleSide 
+              });
+            }
+          });
+
+          laundry.position.set(offsetX, offsetY, offsetZ);
+
+          apartment.add(laundry);
+        }, undefined, (error) => {
+          console.error('An error occurred while loading the laundry model:', error);
+        });
+        }
+
 
 
       _OnWindowResize() {

@@ -38,7 +38,7 @@
         });
         this._threejs.shadowMap.enabled = true;
         this._threejs.shadowMap.type = THREE.PCFSoftShadowMap;
-        this._threejs.setPixelRatio(window.devicePixelRatio);
+        this._threejs.setPixelRatio(window.devicePixelRatio * 2); 
         this._threejs.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this._threejs.domElement);
 
@@ -59,14 +59,15 @@
         light.position.set(90, 80, 15);
         light.target.position.set(0, 0, 0);
         light.castShadow = true;
-        light.shadow.mapSize.width = 2048;
-        light.shadow.mapSize.height = 2048;
-        light.shadow.camera.near = 0.1;
+        light.shadow.mapSize.width = 4096;
+        light.shadow.mapSize.height = 4096;
+        light.shadow.bias = -0.0001;
         light.shadow.camera.far = 500.0;
         light.shadow.camera.left = 100;
         light.shadow.camera.right = -100;
         light.intensity = 3.9;
         this._scene.add(light);
+        this._scene.fog = new THREE.Fog(0xaaaaaa, 5, 500);
 
         this._threejs.toneMapping = THREE.ReinhardToneMapping;
         this._threejs.toneMappingExposure = 1;  
@@ -146,9 +147,9 @@
             patio.scale.set(1, 1, 1);
 
             const materials = [
-              new THREE.MeshStandardMaterial({ color: 0xADD8E6 }), // Light Blue
-              new THREE.MeshStandardMaterial({ color: 0xedaeed }), // Pastel Pink
-              new THREE.MeshStandardMaterial({ color: 0xb3efb3 })  // Pastel Green
+              new THREE.MeshStandardMaterial({ color: 0x7bc1d6 }), // Light Blue
+              new THREE.MeshStandardMaterial({ color: 0x8e7a7c }), // Light Tan
+              new THREE.MeshStandardMaterial({ color: 0x317a50 })  // Dark Green
             ];
             const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
 
@@ -195,7 +196,7 @@
               const randomColor = Math.random() * 0xffffff;
               child.material = new THREE.MeshStandardMaterial({ 
                 color: randomColor, 
-                side: THREE.DoubleSide  // Ensure visibility of all faces
+                side: THREE.DoubleSide  // Ensures visibility of all faces
               });
             }
           });
@@ -218,8 +219,15 @@
 
         const signModels = [
           './data/models/sign_001.glb',
+          './data/models/sign_002.glb'
         ];
         const selectedModel = signModels[Math.floor(Math.random() * signModels.length)];
+
+        const materials = [
+              new THREE.MeshStandardMaterial({ color: 0xD3E753 }), // Pastel Yellow
+              new THREE.MeshStandardMaterial({ color: 0xd6d2bf }), // Eggshell
+            ];
+            const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
 
         loader.load(selectedModel, (gltf) => {
           const laundry = gltf.scene;
@@ -230,12 +238,12 @@
           const offsetZ = 0;
 
           laundry.traverse((child) => {
-            if (child.isMesh && child.name.startsWith('hanging_')) {
-              const randomColor = Math.random() * 0xffffff;
-              child.material = new THREE.MeshStandardMaterial({ 
-                color: randomColor, 
-                side: THREE.DoubleSide 
-              });
+            if (child.isMesh && child.name === 'sign_main') {
+
+                child.material = randomMaterial;
+                child.geometry.computeVertexNormals();
+                child.material.side = THREE.DoubleSide;
+          
             }
           });
 

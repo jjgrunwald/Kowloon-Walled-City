@@ -3,14 +3,14 @@
 <head>
   <title>Walled City - by JJ Grunwald</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum=scale=1.0">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <link type="text/css" rel="stylesheet" href="data/main.css">
 </head>
 <body>
   <div id="info">Walled City</div>
   <div id="details">A dynamically generated cityscape toy. Use your screen (mobile) or mouse (desktop) to explore. Created by J.J. Grunwald.</div>
   <div id="regenerateButtonContainer">
-  <button id="regenerateButton" onclick="location.reload();">REGENERATE CITY</button>
+    <button id="regenerateButton">REGENERATE CITY</button>
   </div>
 
   <script type="importmap">
@@ -42,8 +42,13 @@
         this._threejs.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this._threejs.domElement);
 
+        // Debounce resize event
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-          this._OnWindowResize();
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            this._OnWindowResize();
+          }, 500); // Adjust the debounce delay as needed
         }, false);
 
         const fov = 60;
@@ -188,7 +193,7 @@
 
         const laundryModels = [
           './data/models/laundry_001.glb',
-          './data/models/laundry_002.glb'  //Don't forget to add second model later.
+          './data/models/laundry_002.glb' 
         ];
         const selectedModel = laundryModels[Math.floor(Math.random() * laundryModels.length)];
 
@@ -223,7 +228,7 @@
         const shouldAddSign = Math.random() < 0.03;
 
         if (!shouldAddSign) {
-          return; // Do not add laundry
+          return; // Do not add sign
         }
 
         const signModels = [
@@ -232,67 +237,42 @@
         ];
         const selectedModel = signModels[Math.floor(Math.random() * signModels.length)];
 
-        const materials = [
-              new THREE.MeshStandardMaterial({ color: 0xD3E753 }), // Pastel Yellow
-              new THREE.MeshStandardMaterial({ color: 0xd6d2bf }), // Eggshell
-            ];
-            const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
-
         loader.load(selectedModel, (gltf) => {
-          const laundry = gltf.scene;
-          laundry.scale.set(1, 1, 1);
+          const sign = gltf.scene;
+          sign.scale.set(1, 1, 1);
 
           const offsetX = 0; 
-          const offsetY = -1;
+          const offsetY = 2;
           const offsetZ = 0;
 
-          laundry.traverse((child) => {
-            if (child.isMesh && child.name === 'sign_main') {
+          sign.position.set(offsetX, offsetY, offsetZ);
 
-                child.material = randomMaterial;
-                child.geometry.computeVertexNormals();
-                child.material.side = THREE.DoubleSide;
-          
-            }
-          });
-
-          laundry.position.set(offsetX, offsetY, offsetZ);
-
-          apartment.add(laundry);
+          apartment.add(sign);
         }, undefined, (error) => {
-          console.error('An error occurred while loading the laundry model:', error);
+          console.error('An error occurred while loading the sign model:', error);
         });
-        }
+      }
 
+      _RAF() {
+        requestAnimationFrame(() => {
+          this._RAF();
+        });
 
+        this._threejs.render(this._scene, this._camera);
+        this._controls.update();
+      }
 
       _OnWindowResize() {
         this._camera.aspect = window.innerWidth / window.innerHeight;
         this._camera.updateProjectionMatrix();
         this._threejs.setSize(window.innerWidth, window.innerHeight);
       }
-
-      _RAF() {
-        requestAnimationFrame(() => {
-          if (this.isRotating) {
-            this.cameraAngle += 0.001;
-            this._camera.position.x = this.cameraRadius * Math.cos(this.cameraAngle);
-            this._camera.position.z = this.cameraRadius * Math.sin(this.cameraAngle);
-            this._camera.position.y = 20;
-          }
-
-          this._camera.lookAt(new THREE.Vector3(10, 1, 0));
-          this._controls.update();
-          this._threejs.render(this._scene, this._camera);
-          this._RAF();
-        });
-      }
     }
 
-    let _APP = null;
+    const kowloonWalledCity = new KowloonWalledCity();
 
-    window.addEventListener('DOMContentLoaded', () => {
-      _APP = new KowloonWalledCity();
+    document.getElementById('regenerateButton').addEventListener('click', () => {
+      window.location.reload(); 
     });
   </script>
 </body>

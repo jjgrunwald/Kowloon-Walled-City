@@ -5,12 +5,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum=scale=1.0">
   <link type="text/css" rel="stylesheet" href="data/main.css">
+  <style>
+    /* Fade-in effect CSS */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #AAAAAA; /* Same gray color as the scene background */
+      opacity: 0;
+      transition: opacity 3s ease-in-out; /* Adjust duration to control the speed */
+    }
+
+    body.fade-in {
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
   <div id="info">Walled City</div>
-  <div id="details">Each unit is dynamically generated to create a visually diverse cityscape. Users can explore the scene interactively to see from various angles. Coding and Models by J.J. Grunwald</div>
+  <div id="details">A dynamically generated cityscape toy. Use your screen (mobile) or mouse (desktop) to explore. Created by J.J. Grunwald.</div>
   <div id="regenerateButtonContainer">
-  <button id="regenerateButton" onclick="location.reload();">REGENERATE CITY</button>
+    <button id="regenerateButton" onclick="location.reload();">REGENERATE CITY</button>
   </div>
 
   <script type="importmap">
@@ -84,44 +98,53 @@
         this._controls.update();
 
         const loader = new GLTFLoader();
-        loader.load('./data/models/apartment_unit.glb', (gltf) => {
-          const model = gltf.scene;
-          model.scale.set(1.5, 1.5, 1.5);
 
-          const materials = [
-            new THREE.MeshStandardMaterial({ color: 0xb87948 })  // Rusty orange
-          ];
+        // Array of apartment models
+        const apartmentModels = [
+            './data/models/apartment_001.glb',
+            './data/models/apartment_002.glb',
 
-          const rows = 28;
-          const cols = 24;
-          const xSpacing = 27;
-          const ySpacing = 13.5;
-          const xOffset = -320;
+            // Add more models as needed
+        ];
 
-          for (let i = 0; i < rows; i++) {
+        const rows = 28;
+        const cols = 24;
+        const xSpacing = 27;
+        const ySpacing = 13.5;
+        const xOffset = -320;
+
+        for (let i = 0; i < rows; i++) {
             for (let j = 0; j < cols; j++) {
-              const clone = model.clone();
+                const selectedApartment = apartmentModels[Math.floor(Math.random() * apartmentModels.length)];
 
-              const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
-              clone.traverse((child) => {
-                if (child.isMesh) {
-                  if (child.name === 'Window_Frame_Left' || child.name === 'Window_Frame_Right') {
-                    child.material = randomMaterial;
-                  }
-                }
-              });
+                loader.load(selectedApartment, (gltf) => {
+                    const model = gltf.scene;
+                    model.scale.set(1.5, 1.5, 1.5);
 
-              clone.position.set(j * xSpacing + xOffset, i * ySpacing, 0);
-              this._scene.add(clone);
+                    const materials = [
+                        new THREE.MeshStandardMaterial({ color: 0xb87948 })  // Rusty orange
+                    ];
 
-              this._AddRandomPatio(clone, loader);
-              this._AddRandomLaundry(clone, loader);
-              this._AddRandomSign(clone, loader);
+                    const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            if (child.name === 'Window_Frame_Left' || child.name === 'Window_Frame_Right') {
+                                child.material = randomMaterial;
+                            }
+                        }
+                    });
+
+                    model.position.set(j * xSpacing + xOffset, i * ySpacing, 0);
+                    this._scene.add(model);
+
+                    this._AddRandomPatio(model, loader);
+                    this._AddRandomLaundry(model, loader);
+                    this._AddRandomSign(model, loader);
+                }, undefined, (error) => {
+                    console.error('An error occurred while loading the apartment models:', error);
+                });
             }
-          }
-        }, undefined, (error) => {
-          console.error('An error occurred while loading the apartment models:', error);
-        });
+        }
 
         this.cameraRadius = 100;
         this.cameraAngle = 0;
@@ -192,70 +215,58 @@
           const offsetZ = 1.2;
 
           laundry.traverse((child) => {
-            if (child.isMesh && child.name.startsWith('hanging_')) {
-              const randomColor = Math.random() * 0xffffff;
-              child.material = new THREE.MeshStandardMaterial({ 
-                color: randomColor, 
-                side: THREE.DoubleSide  // Ensures visibility of all faces
-              });
+            if (child.isMesh && child.name.startsWith('hanging')) {
+              child.material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+              child.geometry.computeVertexNormals();
+              child.material.side = THREE.DoubleSide;
             }
           });
 
-          laundry.position.set(offsetX, offsetY, offsetZ);
-
+          laundry.position.set(offsetX, offsetY, offsetZ); 
           apartment.add(laundry);
+
         }, undefined, (error) => {
-          console.error('An error occurred while loading the laundry model:', error);
+          console.error('An error occurred while loading the laundry models:', error);
         });
       }
 
       _AddRandomSign(apartment, loader) {
-
-        const shouldAddSign = Math.random() < 0.03;
+        const shouldAddSign = Math.random() < 0.4;
 
         if (!shouldAddSign) {
-          return; // Do not add laundry
+          return; 
         }
 
         const signModels = [
           './data/models/sign_001.glb',
-          './data/models/sign_002.glb'
+          './data/models/sign_002.glb',
+          './data/models/sign_003.glb',
         ];
-        const selectedModel = signModels[Math.floor(Math.random() * signModels.length)];
 
-        const materials = [
-              new THREE.MeshStandardMaterial({ color: 0xD3E753 }), // Pastel Yellow
-              new THREE.MeshStandardMaterial({ color: 0xd6d2bf }), // Eggshell
-            ];
-            const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
+        const selectedSign = signModels[Math.floor(Math.random() * signModels.length)];
 
-        loader.load(selectedModel, (gltf) => {
-          const laundry = gltf.scene;
-          laundry.scale.set(1, 1, 1);
+        loader.load(selectedSign, (gltf) => {
+          const sign = gltf.scene;
+          sign.scale.set(0.6, 0.6, 0.6);
 
-          const offsetX = 0; 
-          const offsetY = -1;
-          const offsetZ = 0;
+          const offsetX = 0;
+          const offsetY = 3; 
+          const offsetZ = 1.5;
 
-          laundry.traverse((child) => {
-            if (child.isMesh && child.name === 'sign_main') {
-
-                child.material = randomMaterial;
-                child.geometry.computeVertexNormals();
-                child.material.side = THREE.DoubleSide;
-          
+          sign.traverse((child) => {
+            if (child.isMesh) {
+              child.geometry.computeVertexNormals();
+              child.material.side = THREE.DoubleSide;
             }
           });
 
-          laundry.position.set(offsetX, offsetY, offsetZ);
+          sign.position.set(offsetX, offsetY, offsetZ); 
+          apartment.add(sign);
 
-          apartment.add(laundry);
         }, undefined, (error) => {
-          console.error('An error occurred while loading the laundry model:', error);
+          console.error('An error occurred while loading the sign models:', error);
         });
-        }
-
-
+      }
 
       _OnWindowResize() {
         this._camera.aspect = window.innerWidth / window.innerHeight;
@@ -265,25 +276,23 @@
 
       _RAF() {
         requestAnimationFrame(() => {
-          if (this.isRotating) {
-            this.cameraAngle += 0.001;
-            this._camera.position.x = this.cameraRadius * Math.cos(this.cameraAngle);
-            this._camera.position.z = this.cameraRadius * Math.sin(this.cameraAngle);
-            this._camera.position.y = 20;
-          }
-
-          this._camera.lookAt(new THREE.Vector3(10, 1, 0));
-          this._controls.update();
-          this._threejs.render(this._scene, this._camera);
           this._RAF();
         });
+
+        this._threejs.render(this._scene, this._camera);
+
+        if (this.isRotating) {
+          this.cameraAngle += 0.002;
+          this._camera.position.x = Math.sin(this.cameraAngle) * this.cameraRadius;
+          this._camera.position.z = Math.cos(this.cameraAngle) * this.cameraRadius;
+          this._camera.lookAt(this._scene.position);
+        }
       }
     }
 
-    let _APP = null;
-
     window.addEventListener('DOMContentLoaded', () => {
-      _APP = new KowloonWalledCity();
+      document.body.classList.add('fade-in');
+      _APP = new KowloonWalledCity(); // Initialize your scene here
     });
   </script>
 </body>

@@ -1,12 +1,17 @@
 body {
 	margin: 0;
-	background-color: #000;
+	background-color: #AAAAAA;
 	color: #fff;
 	font-family: Monospace;
 	font-size: 24px;
 	line-height: 24px;
 	overscroll-behavior: none;
+	transition: opacity 22s ease-in-out; 
 }
+
+body.fade-in {
+	opacity: 1;
+  }
 
 
 button {

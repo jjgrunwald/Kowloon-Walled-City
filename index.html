@@ -3,9 +3,8 @@
 <head>
   <title>Walled City - by JJ Grunwald</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum=scale=1.0">
   <link type="text/css" rel="stylesheet" href="data/main.css">
-
 </head>
 <body>
   <div id="info">Walled City</div>
@@ -49,7 +48,7 @@
 
         const fov = 60;
         const aspect = window.innerWidth / window.innerHeight;
-        const near = 1.0;
+        const near = .01;
         const far = 1000.0;
         this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         this._camera.position.set(154.17, 178.53, 134.24);
@@ -89,9 +88,7 @@
           model.scale.set(1.5, 1.5, 1.5);
 
           const materials = [
-            new THREE.MeshStandardMaterial({ color: 0xADD8E6 }), // Light Blue
-            new THREE.MeshStandardMaterial({ color: 0xedaeed }), // Pastel Pink
-            new THREE.MeshStandardMaterial({ color: 0xb3efb3 })  // Pastel Green
+            new THREE.MeshStandardMaterial({ color: 0xb87948 })  // Rusty orange
           ];
 
           const rows = 28;
@@ -117,6 +114,7 @@
               this._scene.add(clone);
 
               this._AddRandomPatio(clone, loader);
+              this._AddRandomLaundry(clone, loader);  // Add random laundry model
             }
           }
         }, undefined, (error) => {
@@ -156,10 +154,11 @@
             patio.traverse((child) => {
               if (child.isMesh) {
                 child.material = randomMaterial;
+                child.geometry.computeVertexNormals();
+                child.material.side = THREE.DoubleSide;
               }
             });
 
-            // Positions the patio relative to the apartment unit
             patio.position.set(0, 0, 0); 
             apartment.add(patio);
           }, undefined, (error) => {
@@ -167,6 +166,48 @@
           });
         }
       }
+
+      _AddRandomLaundry(apartment, loader) {
+  // 50% chance of adding laundry
+  const shouldAddLaundry = Math.random() < 0.5;
+
+  if (!shouldAddLaundry) {
+    return; // Do not add laundry
+  }
+
+  // Randomly choose between different laundry models
+  const laundryModels = [
+    './data/models/laundry_001.glb',
+    './data/models/laundry_002.glb'  // Assuming you have a second model
+  ];
+  const selectedModel = laundryModels[Math.floor(Math.random() * laundryModels.length)];
+
+  loader.load(selectedModel, (gltf) => {
+    const laundry = gltf.scene;
+    laundry.scale.set(1, 1, 1);
+
+    const offsetX = 0; 
+    const offsetY = -1;
+    const offsetZ = 1.2; // Adjust as needed
+
+    laundry.traverse((child) => {
+      if (child.isMesh && child.name.startsWith('hanging_')) {
+        const randomColor = Math.random() * 0xffffff;
+        child.material = new THREE.MeshStandardMaterial({ 
+          color: randomColor, 
+          side: THREE.DoubleSide  // Ensure visibility of all faces
+        });
+      }
+    });
+
+    laundry.position.set(offsetX, offsetY, offsetZ);
+
+    apartment.add(laundry);
+  }, undefined, (error) => {
+    console.error('An error occurred while loading the laundry model:', error);
+  });
+}
+
 
       _OnWindowResize() {
         this._camera.aspect = window.innerWidth / window.innerHeight;

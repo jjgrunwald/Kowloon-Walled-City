@@ -5,26 +5,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum=scale=1.0">
   <link type="text/css" rel="stylesheet" href="data/main.css">
-  <style>
-    /* Fade-in effect CSS */
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #AAAAAA; /* Same gray color as the scene background */
-      opacity: 0;
-      transition: opacity 3s ease-in-out; /* Adjust duration to control the speed */
-    }
-
-    body.fade-in {
-      opacity: 1;
-    }
-  </style>
 </head>
 <body>
   <div id="info">Walled City</div>
   <div id="details">A dynamically generated cityscape toy. Use your screen (mobile) or mouse (desktop) to explore. Created by J.J. Grunwald.</div>
   <div id="regenerateButtonContainer">
-    <button id="regenerateButton" onclick="location.reload();">REGENERATE CITY</button>
+  <button id="regenerateButton" onclick="location.reload();">REGENERATE CITY</button>
   </div>
 
   <script type="importmap">
@@ -215,58 +201,70 @@
           const offsetZ = 1.2;
 
           laundry.traverse((child) => {
-            if (child.isMesh && child.name.startsWith('hanging')) {
-              child.material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
-              child.geometry.computeVertexNormals();
-              child.material.side = THREE.DoubleSide;
+            if (child.isMesh && child.name.startsWith('hanging_')) {
+              const randomColor = Math.random() * 0xffffff;
+              child.material = new THREE.MeshStandardMaterial({ 
+                color: randomColor, 
+                side: THREE.DoubleSide  // Ensures visibility of all faces
+              });
             }
           });
 
-          laundry.position.set(offsetX, offsetY, offsetZ); 
-          apartment.add(laundry);
+          laundry.position.set(offsetX, offsetY, offsetZ);
 
+          apartment.add(laundry);
         }, undefined, (error) => {
-          console.error('An error occurred while loading the laundry models:', error);
+          console.error('An error occurred while loading the laundry model:', error);
         });
       }
 
       _AddRandomSign(apartment, loader) {
-        const shouldAddSign = Math.random() < 0.4;
+
+        const shouldAddSign = Math.random() < 0.03;
 
         if (!shouldAddSign) {
-          return; 
+          return; // Do not add laundry
         }
 
         const signModels = [
           './data/models/sign_001.glb',
-          './data/models/sign_002.glb',
-          './data/models/sign_003.glb',
+          './data/models/sign_002.glb'
         ];
+        const selectedModel = signModels[Math.floor(Math.random() * signModels.length)];
 
-        const selectedSign = signModels[Math.floor(Math.random() * signModels.length)];
+        const materials = [
+              new THREE.MeshStandardMaterial({ color: 0xD3E753 }), // Pastel Yellow
+              new THREE.MeshStandardMaterial({ color: 0xd6d2bf }), // Eggshell
+            ];
+            const randomMaterial = materials[Math.floor(Math.random() * materials.length)];
 
-        loader.load(selectedSign, (gltf) => {
-          const sign = gltf.scene;
-          sign.scale.set(0.6, 0.6, 0.6);
+        loader.load(selectedModel, (gltf) => {
+          const laundry = gltf.scene;
+          laundry.scale.set(1, 1, 1);
 
-          const offsetX = 0;
-          const offsetY = 3; 
-          const offsetZ = 1.5;
+          const offsetX = 0; 
+          const offsetY = -1;
+          const offsetZ = 0;
 
-          sign.traverse((child) => {
-            if (child.isMesh) {
-              child.geometry.computeVertexNormals();
-              child.material.side = THREE.DoubleSide;
+          laundry.traverse((child) => {
+            if (child.isMesh && child.name === 'sign_main') {
+
+                child.material = randomMaterial;
+                child.geometry.computeVertexNormals();
+                child.material.side = THREE.DoubleSide;
+          
             }
           });
 
-          sign.position.set(offsetX, offsetY, offsetZ); 
-          apartment.add(sign);
+          laundry.position.set(offsetX, offsetY, offsetZ);
 
+          apartment.add(laundry);
         }, undefined, (error) => {
-          console.error('An error occurred while loading the sign models:', error);
+          console.error('An error occurred while loading the laundry model:', error);
         });
-      }
+        }
+
+
 
       _OnWindowResize() {
         this._camera.aspect = window.innerWidth / window.innerHeight;
@@ -276,23 +274,25 @@
 
       _RAF() {
         requestAnimationFrame(() => {
+          if (this.isRotating) {
+            this.cameraAngle += 0.001;
+            this._camera.position.x = this.cameraRadius * Math.cos(this.cameraAngle);
+            this._camera.position.z = this.cameraRadius * Math.sin(this.cameraAngle);
+            this._camera.position.y = 20;
+          }
+
+          this._camera.lookAt(new THREE.Vector3(10, 1, 0));
+          this._controls.update();
+          this._threejs.render(this._scene, this._camera);
           this._RAF();
         });
-
-        this._threejs.render(this._scene, this._camera);
-
-        if (this.isRotating) {
-          this.cameraAngle += 0.002;
-          this._camera.position.x = Math.sin(this.cameraAngle) * this.cameraRadius;
-          this._camera.position.z = Math.cos(this.cameraAngle) * this.cameraRadius;
-          this._camera.lookAt(this._scene.position);
-        }
       }
     }
 
+
     window.addEventListener('DOMContentLoaded', () => {
       document.body.classList.add('fade-in');
-      _APP = new KowloonWalledCity(); // Initialize your scene here
+      _APP = new KowloonWalledCity();
     });
   </script>
 </body>

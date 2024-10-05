@@ -128,21 +128,16 @@
         const yCenter = (yMin + yMax) / 2;
         const cityCenter = new THREE.Vector3(xCenter, yCenter, 0);
 
-        // Camera offsets based on desktop configuration
-        const desktopCityCenter = new THREE.Vector3(-9.5, 182.25, 0);
-        const desktopCameraPosition = new THREE.Vector3(154.17, 178.53, 134.24);
-        const desktopControlsTarget = new THREE.Vector3(90, 180, 0);
+        // Set camera position relative to city center
+        const cameraPosition = new THREE.Vector3(
+          cityCenter.x - 120, // Move camera to the left
+          cityCenter.y + 60,  // Raise camera higher
+          cityCenter.z + 200  // Adjust distance from city
+        );
 
-        // Calculate offsets
-        const cameraOffset = new THREE.Vector3().subVectors(desktopCameraPosition, desktopCityCenter);
-        const controlsOffset = new THREE.Vector3().subVectors(desktopControlsTarget, desktopCityCenter);
-
-        // Set camera position and controls target relative to the city center
-        const cameraPosition = new THREE.Vector3().addVectors(cityCenter, cameraOffset);
-        const controlsTarget = new THREE.Vector3().addVectors(cityCenter, controlsOffset);
-
+        // Set controls target to the city center
         this._camera.position.copy(cameraPosition);
-        this._controls.target.copy(controlsTarget);
+        this._controls.target.copy(cityCenter);
         this._controls.update();
 
         for (let i = 0; i < rows; i++) {

@@ -55,7 +55,7 @@
           clearTimeout(resizeTimeout);
           resizeTimeout = setTimeout(() => {
             this._OnWindowResize();
-          }, 500); // Adjust the debounce delay as needed
+          }, 500);
         }, false);
 
         const fov = 60;
@@ -169,12 +169,10 @@
               model.position.set(j * xSpacing + xOffset, i * ySpacing, 0);
               this._scene.add(model);
 
-              // Simplify scene for mobile devices
-              if (!isMobile) {
-                this._AddRandomPatio(model, loader);
-                this._AddRandomLaundry(model, loader);
-                this._AddRandomSign(model, loader);
-              }
+              // Always add these elements
+              this._AddRandomPatio(model, loader);
+              this._AddRandomLaundry(model, loader);
+              this._AddRandomSign(model, loader);
             }, undefined, (error) => {
               console.error('An error occurred while loading the apartment models:', error);
             });
@@ -249,7 +247,7 @@
               const randomColor = Math.random() * 0xffffff;
               child.material = new THREE.MeshStandardMaterial({
                 color: randomColor,
-                side: THREE.DoubleSide  // Ensures visibility of all faces
+                side: THREE.DoubleSide
               });
             }
           });
